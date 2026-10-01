@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Practice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="speaking-data.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        ::highlight(speaking-highlight) {
+            background-color: #fde68a;
+            color: #1e293b;
+        }
+        .speaking-highlight-fallback {
+            background-color: #fde68a;
+            color: #1e293b;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <div class="max-w-2xl mx-auto w-full p-4 sm:p-6 lg:p-8 my-auto">
+
+        <!-- HEADER -->
+        <header class="text-center mb-6">
+            <div
+                class="inline-flex items-center justify-center p-3 bg-indigo-100 text-indigo-600 rounded-2xl mb-3 shadow-xs">
+                <i data-lucide="volume-2" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Spelling Practice</h1>
+            <p class="text-slate-500 text-sm mt-1">Select the most common IELTS vocabulary topics or paste your custom
+                list to practice.</p>
+        </header>
+
+        <!-- PRACTICE TYPE SWITCHER -->
+        <div class="flex p-1 bg-slate-100 rounded-xl mb-4">
+            <button id="practice-spelling-btn" onclick="switchPracticeType('spelling')" class="flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 bg-white text-indigo-600 shadow-xs">
+                <i data-lucide="spell-check" class="w-4 h-4"></i>
+                Spelling
+            </button>
+            <button id="practice-speaking-btn" onclick="switchPracticeType('speaking')" class="flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900">
+                <i data-lucide="mic-2" class="w-4 h-4"></i>
+                Speaking
+            </button>
+        </div>
+
+        <!-- SETUP SECTION -->
+        <div id="setup-section"
+            class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 transition-all duration-300">
+
+            <!-- Tab Switcher -->
+            <div class="flex p-1 bg-slate-100 rounded-xl mb-5">
+                <button id="tab-topics-btn" onclick="switchTab('topics')"
+                    class="flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 bg-white text-indigo-600 shadow-xs">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    Topics & Vocab Lists
+                </button>
+                <button id="tab-custom-btn" onclick="switchTab('custom')"
+                    class="flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    Custom Word List
+                </button>
+            </div>
+
+            <!-- TAB CONTENT: TOPICS -->
+            <div id="tab-topics" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <label class="block font-semibold text-slate-700 text-sm">
+                        Choose Topics to Practice:
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="selectAllTopics(true)"
+                            class="text-xs text-indigo-600 hover:underline font-medium">Select All</button>
+                        <span class="text-slate-300 text-xs">|</span>
+                        <button type="button" onclick="selectAllTopics(false)"
+                            class="text-xs text-slate-500 hover:underline font-medium">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Topic Checkboxes Container -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-1" id="topic-checkboxes">
+                    <!-- Dynamic Topic Checkboxes will populate here -->
+                </div>
+
+                <!-- Show More / Less Topics Toggle Button -->
+                <div class="text-center pt-1">
+                    <button type="button" id="toggle-topics-btn" onclick="toggleMoreTopics()"
+                        class="inline-flex items-center justify-center gap-1.5 py-2 px-4 bg-slate-100 hover:bg-slate-200 text-indigo-600 hover:text-indigo-700 font-semibold text-xs rounded-xl transition cursor-pointer">
+                        <span id="toggle-topics-text">+ Show More Topics</span>
+                        <i id="toggle-topics-icon" data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: CUSTOM PASTE -->
+            <div id="tab-custom" class="hidden space-y-3">
+                <label for="word-input" class="block font-semibold text-slate-700 text-sm">
+                    Paste Custom Word List:
+                </label>
+                <textarea id="word-input" rows="5"
+                    class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-slate-800 placeholder-slate-400 text-sm"
+                    placeholder="example&#10;accommodate&#10;rhythm&#10;definitely"></textarea>
+            </div>
+
+            <!-- Practice Options -->
+            <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
+                    <input type="checkbox" id="shuffle-words" checked
+                        class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                    <span>Shuffle</span>
+                </label>
+                <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
+                    <input type="checkbox" id="case-sensitive"
+                        class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                    <span>Case-sensitive</span>
+                </label>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button type="button" onclick="showSpellingHistory()"
+                    class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition flex items-center justify-center gap-2 text-xs">
+                    <i data-lucide="history" class="w-4 h-4"></i>
+                    Spelling History
+                </button>
+                <button type="button" id="review-weak-btn" onclick="startWeakWordsReview()"
+                    class="py-2.5 px-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-medium rounded-xl transition flex items-center justify-center gap-2 text-xs">
+                    <i data-lucide="book-marked" class="w-4 h-4"></i>
+                    Review Weak Words
+                </button>
+            </div>
+
+            <!-- Voice selection & settings options -->
+            <div class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200/70 space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <label for="voice-select" class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="mic" class="w-4 h-4 text-indigo-500"></i>
+                        Voice Selection:
+                    </label>
+                    <select id="voice-select"
+                        class="text-xs border border-slate-300 rounded-lg p-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium max-w-full sm:max-w-xs text-slate-700">
+                        <option value="">Loading voices...</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    <div>
+                        <label for="voice-speed" class="text-xs font-medium text-slate-600 block mb-1">Speed
+                            Rate:</label>
+                        <select id="voice-speed"
+                            class="w-full text-xs border border-slate-300 rounded-lg p-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="0.75">Slow (0.75x)</option>
+                            <option value="0.9">Natural (0.9x)</option>
+                            <option value="1" selected>Normal (1.0x)</option>
+                            <option value="1.2">Fast (1.2x)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="audio-engine" class="text-xs font-medium text-slate-600 block mb-1">Audio
+                            Source:</label>
+                        <select id="audio-engine"
+                            class="w-full text-xs border border-slate-300 rounded-lg p-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="speech-synth" selected>Speech Voice API</option>
+                            <option value="online-audio">Online Audio (Dictionary)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button type="button" onclick="testVoice()"
+                            class="w-full py-1.5 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg text-xs transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                            Test Voice
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button id="start-btn" onclick="startPractice()"
+                class="mt-6 w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-medium rounded-xl shadow-md shadow-indigo-100 hover:shadow-indigo-200 transition flex items-center justify-center gap-2">
+                <span>Start Practice</span>
+                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- SPEAKING SETUP SECTION -->
+        <div id="speaking-setup-section" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 transition-all duration-300 space-y-5">
+            <div>
+                <h2 class="font-semibold text-slate-800">Speaking sample practice</h2>
+                <p class="text-xs text-slate-500 mt-1">Choose Part 1 topics, or browse Part 2 cue cards by topic and mark the ones you have read.</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1 p-1 bg-slate-100 rounded-xl">
+                <button id="speaking-part1-btn" onclick="selectSpeakingMode('part1')" class="py-2 px-2 text-xs font-semibold rounded-lg bg-white text-indigo-600 shadow-xs">Part 1</button>
+                <button id="speaking-part2-btn" onclick="selectSpeakingMode('part2')" class="py-2 px-2 text-xs font-semibold rounded-lg text-slate-600">Part 2 + 3</button>
+                <button id="speaking-random-btn" onclick="selectSpeakingMode('random')" class="py-2 px-2 text-xs font-semibold rounded-lg text-slate-600">Random</button>
+            </div>
+
+            <div id="part1-topic-picker">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                    <label class="block font-semibold text-slate-700 text-sm">Select Part 1 topics:</label>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="selectAllSpeakingTopics(true)" class="text-xs text-indigo-600 hover:underline font-medium">Select All</button>
+                        <span class="text-slate-300 text-xs">|</span>
+                        <button type="button" onclick="selectAllSpeakingTopics(false)" class="text-xs text-slate-500 hover:underline font-medium">Clear</button>
+                    </div>
+                </div>
+                <div class="relative mb-3">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                    <input id="speaking-topic-search" type="search" oninput="filterSpeakingTopics()" placeholder="Search topics..." class="w-full py-2 pl-9 pr-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                </div>
+                <div id="part1-topic-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-1 max-h-80 overflow-y-auto"></div>
+                <p id="speaking-topic-empty" class="hidden text-xs text-slate-500 text-center py-4">No topics match your search.</p>
+            </div>
+
+            <div id="part2-topic-picker" class="hidden">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                    <label class="block font-semibold text-slate-700 text-sm">Select Part 2 topics:</label>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="selectAllPart2Categories(true)" class="text-xs text-indigo-600 hover:underline font-medium">Select All</button>
+                        <span class="text-slate-300 text-xs">|</span>
+                        <button type="button" onclick="selectAllPart2Categories(false)" class="text-xs text-slate-500 hover:underline font-medium">Clear</button>
+                    </div>
+                </div>
+                <div id="part2-category-chips" class="flex flex-wrap gap-2 mb-3"></div>
+                <div class="relative mb-3">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                    <input id="part2-topic-search" type="search" oninput="renderPart2TopicCards()" placeholder="Search cue cards..." class="w-full py-2 pl-9 pr-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2 text-xs">
+                    <span id="part2-read-progress" class="font-medium text-slate-500"></span>
+                    <div class="flex items-center gap-3">
+                        <label class="flex items-center gap-1.5 text-slate-600 cursor-pointer select-none">
+                            <input id="part2-hide-read" type="checkbox" onchange="renderPart2TopicCards()" class="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                            Hide read
+                        </label>
+                        <button type="button" onclick="chooseRandomPart2()" class="text-indigo-600 hover:underline font-medium">Random unread</button>
+                    </div>
+                </div>
+                <div id="part2-topic-cards" class="space-y-4 max-h-[32rem] overflow-y-auto pr-1"></div>
+                <p id="part2-topic-empty" class="hidden text-xs text-slate-500 text-center py-4">No cue cards match your selection.</p>
+            </div>
+
+            <div id="speaking-loading" class="text-xs text-indigo-600 bg-indigo-50 rounded-lg p-3">Loading speaking samples...</div>
+            <div id="speaking-error" class="hidden text-xs text-rose-700 bg-rose-50 rounded-lg p-3"></div>
+
+            <button onclick="startSpeakingPractice()" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                <span>Start Speaking Practice</span>
+                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="speaking-preview-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 p-4 flex items-center justify-center" onclick="closeSpeakingPreview(event)">
+            <div class="bg-white rounded-2xl shadow-xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6" role="dialog" aria-modal="true" aria-labelledby="speaking-preview-title">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p id="speaking-preview-label" class="text-xs font-bold uppercase tracking-wider text-indigo-600"></p>
+                        <h2 id="speaking-preview-title" class="text-xl font-bold text-slate-900 mt-1"></h2>
+                    </div>
+                    <button type="button" onclick="closeSpeakingPreview()" class="p-1 text-slate-400 hover:text-slate-700" aria-label="Close preview"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div id="speaking-preview-content" class="mt-4 space-y-3"></div>
+            </div>
+        </div>
+
+        <div id="speaking-selection-toolbar" class="hidden fixed z-[60] items-center gap-1 rounded-lg bg-slate-900 p-1 shadow-lg" onmousedown="event.preventDefault()">
+            <button type="button" onclick="highlightSpeakingSelection()" class="p-2 text-amber-300 hover:bg-slate-700 rounded-md" aria-label="Highlight selected text" title="Highlight selected text">
+                <i data-lucide="highlighter" class="w-4 h-4"></i>
+            </button>
+            <button type="button" onclick="pronounceSpeakingSelection()" class="p-2 text-white hover:bg-slate-700 rounded-md" aria-label="Pronounce selected text" title="Pronounce selected text">
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- PRACTICE SECTION -->
+        <div id="practice-section" class="hidden space-y-6">
+            <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                <span id="word-count-badge"
+                    class="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                    0 Words
+                </span>
+                <button onclick="resetApp()"
+                    class="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 transition font-medium">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    Change Topics / Words
+                </button>
+            </div>
+
+            <div id="fields-container" class="space-y-4">
+                <!-- Dynamically generated fields will go here -->
+            </div>
+
+            <button id="check-btn" onclick="checkAnswers()"
+                class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium rounded-xl shadow-md shadow-emerald-100 transition flex items-center justify-center gap-2">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span>Check Answers</span>
+            </button>
+        </div>
+
+        <!-- SPEAKING PRACTICE SECTION -->
+        <div id="speaking-practice-section" class="hidden space-y-5">
+            <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+                <div>
+                    <span id="speaking-count-badge" class="inline-block mt-2 text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full"></span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="speaking-read-btn" onclick="toggleCurrentPart2Read()" class="hidden text-xs py-1.5 px-3 rounded-lg border font-medium transition items-center gap-1"></button>
+                    <button onclick="resetSpeakingPractice()" class="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 transition font-medium">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        Change Selection
+                    </button>
+                </div>
+            </div>
+            <button id="speaking-prev-btn" onclick="moveSpeakingTopic(-1)" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm transition flex items-center justify-center gap-1.5">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    <span>Previous: </span><span id="speaking-prev-topic-title"></span>
+            </button>
+            <div id="speaking-fields-container" class="space-y-4"></div>
+            <button id="speaking-next-btn" onclick="moveSpeakingTopic(1)" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm transition flex items-center justify-center gap-1.5">
+                    <span>Next: </span><span id="speaking-next-topic-title"></span>
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- RESULTS CARD -->
+        <div id="results-card"
+            class="hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 text-center space-y-4">
+            <div id="score-icon" class="w-16 h-16 rounded-full mx-auto flex items-center justify-center">
+                <!-- Dynamic icon -->
+            </div>
+            <div>
+                <h2 id="score-title" class="text-2xl font-bold text-slate-900">Result Title</h2>
+                <p id="score-text" class="text-slate-600 text-sm mt-1">You scored 0 out of 0</p>
+            </div>
+            <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                <button id="retry-mistakes-btn" onclick="retryMistakesOnly()"
+                    class="hidden flex-1 py-3 px-4 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-medium rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                    Retry Mistakes Only
+                </button>
+                <button onclick="retrySameWords()"
+                    class="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    Retry All
+                </button>
+                <button onclick="resetApp()"
+                    class="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    New Session
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 text-slate-400 text-xs">
+        IELTS Practice App &bull; Spelling and Speaking Samples
+    </footer>
+
+    <dialog id="topic-preview-dialog"
+        class="w-[calc(100%-2rem)] max-w-md rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/40">
+        <div class="bg-white">
+            <div class="flex items-start justify-between gap-4 border-b border-slate-100 p-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-indigo-600">Word Preview</p>
+                    <h2 id="topic-preview-title" class="mt-1 text-xl font-bold text-slate-900"></h2>
+                </div>
+                <button type="button" onclick="closeTopicPreview()" aria-label="Close word preview"
+                    class="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <div class="max-h-[60vh] overflow-y-auto p-5">
+                <ul id="topic-preview-words" class="grid grid-cols-1 gap-2 text-sm text-slate-700 sm:grid-cols-2"></ul>
+            </div>
+            <div class="border-t border-slate-100 p-5">
+                <button type="button" onclick="closeTopicPreview()"
+                    class="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700">
+                    Done
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="history-dialog"
+        class="w-[calc(100%-2rem)] max-w-lg rounded-2xl p-0 shadow-2xl backdrop:bg-slate-900/40">
+        <div class="bg-white">
+            <div class="flex items-start justify-between gap-4 border-b border-slate-100 p-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-indigo-600">Progress</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-900">Spelling History</h2>
+                </div>
+                <button type="button" onclick="closeHistory()" aria-label="Close spelling history"
+                    class="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                </button>
+            </div>
+            <div id="history-list" class="max-h-[60vh] overflow-y-auto p-5"></div>
+            <div class="flex gap-2 border-t border-slate-100 p-5">
+                <button type="button" onclick="clearSpellingHistory()"
+                    class="flex-1 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700 transition hover:bg-rose-100">Clear
+                    History</button>
+                <button type="button" onclick="closeHistory()"
+                    class="flex-1 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700">Done</button>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        // Topic Categories Dictionary with all requested vocabulary lists
+        const TOPICS_DATA = {
+            "Days of the week": [
+                "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+            ],
+            "Months and seasons": [
+                "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "winter", "spring", "autumn", "summer"
+            ],
+            "Shapes": [
+                "circle", "square", "rectangle", "triangle", "cylinder", "oval"
+            ],
+            "Transportation": [
+                "Automobile", "truck", "tractor", "tram", "subway", "airplane", "train", "bicycle", "car", "pedestrian", "passenger", "commuter"
+            ],
+            "Colours": [
+                "Red", "orange", "yellow", "green", "blue", "purple", "white", "black", "brown"
+            ],
+            "Verbs": [
+                "Suggest", "develop", "borrow", "persuade", "discuss", "review", "concentrate", "believe", "crash"
+            ],
+            "Adjectives": [
+                "Beautiful", "necessary", "fantastic", "comfortable", "convenient", "wonderful", "terrible", "temporary", "permanent", "knowledgeable", "exciting", "boring", "difficult", "easy"
+            ],
+            "Rooms in buildings": [
+                "Kitchen", "bathroom", "bedroom", "living room", "dining room", "lounge", "library", "gymnasium", "cafeteria", "classroom", "waiting room", "reception", "ticket desk", "storage room", "theatre"
+            ],
+            "Place markers": [
+                "Street", "road", "avenue", "lane", "drive", "court", "place", "terrace", "way"
+            ],
+            "Directions & Prepositions": [
+                "North", "south", "east", "west", "up", "down", "right", "left", "straight", "across from", "between", "besides", "diagonal", "corner", "opposite", "adjacent to", "near", "past", "before", "after"
+            ],
+            "Verbs (Directions)": [
+                "Turn", "move", "continue on", "walk", "cross", "pass", "start", "finish", "end", "stop", "go straight ahead"
+            ],
+            "Places on a map": [
+                "Tennis court", "river", "courtyard", "laboratory", "building", "bridge", "road", "path", "traffic lights", "bench", "seat", "table", "basketball court", "running track", "swimming pool", "beach", "forest", "garden", "castle"
+            ],
+            "Academic terminology": [
+                "Presentation", "project", "teamwork", "pairs", "organisation", "outline", "proofreading", "experiment", "reference", "lecture", "tutor", "instructor", "attendance", "specialist", "knowledge", "faculty", "bachelor's", "master's", "schedule", "management", "leadership", "questionnaire", "statistic", "percentage", "laboratory", "school", "university", "college"
+            ],
+            "School subjects": [
+                "Mathematics", "Science", "English", "Physical Education", "Art", "Music", "Geography", "Biology", "Chemistry", "History"
+            ],
+            "University disciplines": [
+                "Commerce", "Science", "Psychology", "Engineering", "Marketing", "Sociology", "Medicine", "History", "Geography", "Architecture", "Law", "Philosophy", "Economics", "Education"
+            ],
+            "Examination": [
+                "Assessment", "test", "review", "pass", "fail", "retake", "supervise", "supervisor", "evaluate", "exam", "results", "degree", "certificate"
+            ],
+            "Health": [
+                "Vegetarian", "vegan", "well-being", "unhealthy", "leisure", "ailments", "vitamins", "proteins", "carbohydrates", "physical activity", "treatment", "obesity", "overweight", "fitness", "physician", "medical check-up", "medication", "pandemic", "virus", "remedy", "vaccination"
+            ],
+            "Animals and their habitats": [
+                "Mammals", "reptiles", "primates", "predators", "prey", "mountains", "jungles", "forests", "islands", "ponds", "rivers", "streams", "zoos", "pets", "endangered species", "oceans", "seas"
+            ],
+            "Continents and countries": [
+                "North America", "South America", "Asia", "Africa", "Europe", "Antarctica", "Australia", "Oceania", "England", "Canada", "China", "the United Kingdom", "Germany", "Mexico", "Switzerland"
+            ],
+            "Environment": [
+                "Global warming", "disaster", "earthquake", "tornado", "blizzards", "hurricanes", "pollution", "temperature", "drought", "flood", "cyclones", "volcanic eruptions", "deforestation", "desertification", "bushfires"
+            ],
+            "Government": [
+                "Politics", "leader", "politician", "senator", "mayor", "laws", "regulations", "senate", "president", "society", "individuals", "council", "rules"
+            ],
+            "Energy": [
+                "Nuclear", "oil", "coal", "hydroelectric power", "natural gas", "solar power", "energy source", "electricity generation", "dam", "windmill", "wind turbine", "renewable", "non-renewable"
+            ],
+            "General": [
+                "Appointment", "cooperation", "employment", "governance", "exhibition", "occupation", "aluminum", "aluminium", "century", "decade", "millennium", "individual", "creativity", "guarantee", "satellite", "opportunity", "license", "frequently", "calendar", "distinct"
+            ],
+        };
+
+        let activeTab = 'topics'; // 'topics' | 'custom'
+        let practiceType = 'spelling';
+        let speakingMode = 'part1';
+        let part1Data = [];
+        let part2Data = [];
+        let part2Categories = [];
+        let selectedPart2Categories = new Set();
+        let readPart2Ids = new Set();
+        let speakingSelection = [];
+        let speakingNavigation = [];
+        let speakingTopicIndex = 0;
+        let targetWords = [];
+        let wrongWords = [];
+        let availableVoices = [];
+        let showAllTopics = false;
+        let caseSensitive = false;
+        let sessionRecorded = false;
+        const INITIAL_VISIBLE_TOPICS = 4;
+        const synth = window.speechSynthesis;
+        const HISTORY_STORAGE_KEY = 'spelling-practice-history';
+        const WEAK_WORDS_STORAGE_KEY = 'spelling-practice-weak-words';
+        const PART2_READ_STORAGE_KEY = 'speaking-part2-read-topics';
+
+        // Initialize App on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderTopicCheckboxes();
+            populateVoiceList();
+            updateWeakWordsButton();
+            loadSpeakingSamples();
+            document.addEventListener('selectionchange', handleSpeakingSelection);
+            document.addEventListener('mouseup', positionSpeakingSelectionToolbar);
+            if (synth && synth.onvoiceschanged !== undefined) {
+                synth.onvoiceschanged = populateVoiceList;
+            }
+        });
+
+        async function loadSpeakingSamples() {
+            const loading = document.getElementById('speaking-loading');
+            try {
+                if (window.SPEAKING_PART1_DATA?.topics && window.SPEAKING_PART2_DATA) {
+                    part1Data = window.SPEAKING_PART1_DATA.topics;
+                    setPart2Data(window.SPEAKING_PART2_DATA);
+                    populateSpeakingTopicLists();
+                    loading.classList.add('hidden');
+                    return;
+                }
+                const [part1Response, part2Response] = await Promise.all([
+                    fetch('ielts_speaking_part1_by_topic.json'),
+                    fetch('ielts_speaking_part2_part3.json')
+                ]);
+                if (!part1Response.ok || !part2Response.ok) throw new Error('The speaking sample files could not be loaded.');
+                part1Data = (await part1Response.json()).topics || [];
+                setPart2Data(await part2Response.json());
+                populateSpeakingTopicLists();
+                loading.classList.add('hidden');
+            } catch (error) {
+                loading.classList.add('hidden');
+                const errorEl = document.getElementById('speaking-error');
+                errorEl.textContent = `${error.message} The speaking data bundle could not be loaded.`;
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function setPart2Data(data) {
+            part2Categories = data.categories
+                || [{ id: 'all', name: 'All cue cards', topics: data.topics || [] }];
+            part2Data = part2Categories.flatMap(category =>
+                category.topics.map(topic => ({ ...topic, category: category.name, categoryId: category.id })));
+            selectedPart2Categories = new Set(part2Categories.slice(0, 1).map(category => category.id));
+            readPart2Ids = new Set(getStoredJson(PART2_READ_STORAGE_KEY, []));
+        }
+
+        function switchPracticeType(type) {
+            practiceType = type;
+            const spellingButton = document.getElementById('practice-spelling-btn');
+            const speakingButton = document.getElementById('practice-speaking-btn');
+            const spellingSetup = document.getElementById('setup-section');
+            const speakingSetup = document.getElementById('speaking-setup-section');
+            const activeClasses = "flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 bg-white text-indigo-600 shadow-xs";
+            const inactiveClasses = "flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900";
+            spellingButton.className = type === 'spelling' ? activeClasses : inactiveClasses;
+            speakingButton.className = type === 'speaking' ? activeClasses : inactiveClasses;
+            spellingSetup.classList.toggle('hidden', type !== 'spelling');
+            speakingSetup.classList.toggle('hidden', type !== 'speaking');
+            document.getElementById('practice-section').classList.add('hidden');
+            document.getElementById('speaking-practice-section').classList.add('hidden');
+        }
+
+        function populateSpeakingTopicLists() {
+            renderSpeakingTopicCheckboxes();
+            renderPart2TopicCards();
+        }
+
+        function renderSpeakingTopicCheckboxes() {
+            const query = document.getElementById('speaking-topic-search').value.trim().toLowerCase();
+            const container = document.getElementById('part1-topic-checkboxes');
+            const matches = part1Data.filter(entry => entry.topic.toLowerCase().includes(query));
+            container.innerHTML = matches.map(entry => {
+                const index = part1Data.indexOf(entry);
+                return `<label class="flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200/80 hover:bg-slate-50 cursor-pointer transition select-none text-xs sm:text-sm font-medium text-slate-700">
+                    <input type="checkbox" name="speaking-part1-topic" value="${index}" class="speaking-part1-checkbox w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                    <span class="flex-1">${escapeHtml(entry.topic)}</span>
+                    <button type="button" onclick="openPart1Preview(${index}); event.preventDefault();" class="p-1 text-indigo-600 hover:text-indigo-800 rounded-lg hover:bg-indigo-50" aria-label="Preview ${escapeHtml(entry.topic)}" title="Preview"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                    <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full font-normal">${entry.questions.length}</span>
+                </label>`;
+            }).join('');
+            document.getElementById('speaking-topic-empty').classList.toggle('hidden', matches.length > 0);
+            lucide.createIcons();
+        }
+
+        function renderPart2CategoryChips() {
+            document.getElementById('part2-category-chips').innerHTML = part2Categories.map(category => {
+                const isSelected = selectedPart2Categories.has(category.id);
+                const readCount = category.topics.filter(topic => readPart2Ids.has(topic.id)).length;
+                return `<button type="button" onclick="togglePart2Category('${escapeJsString(category.id)}')" aria-pressed="${isSelected}"
+                    class="py-1.5 px-3 rounded-full border text-xs font-medium transition ${isSelected
+                        ? 'bg-indigo-600 border-indigo-600 text-white'
+                        : 'bg-white border-slate-300 text-slate-600 hover:border-indigo-400 hover:text-indigo-600'}">
+                    ${escapeHtml(category.name)}
+                    <span class="ml-1 ${isSelected ? 'text-indigo-100' : 'text-slate-400'}">${readCount}/${category.topics.length}</span>
+                </button>`;
+            }).join('');
+        }
+
+        function togglePart2Category(categoryId) {
+            if (selectedPart2Categories.has(categoryId)) selectedPart2Categories.delete(categoryId);
+            else selectedPart2Categories.add(categoryId);
+            renderPart2TopicCards();
+        }
+
+        function selectAllPart2Categories(shouldSelect) {
+            selectedPart2Categories = new Set(shouldSelect ? part2Categories.map(category => category.id) : []);
+            renderPart2TopicCards();
+        }
+
+        function getFilteredPart2Topics() {
+            const query = document.getElementById('part2-topic-search').value.trim().toLowerCase();
+            const hideRead = document.getElementById('part2-hide-read').checked;
+            return part2Data.filter(entry =>
+                selectedPart2Categories.has(entry.categoryId)
+                && (!hideRead || readPart2Ids.has(entry.id) === false)
+                && (!query || `${entry.topic} ${entry.part2.question}`.toLowerCase().includes(query)));
+        }
+
+        function renderPart2TopicCards() {
+            renderPart2CategoryChips();
+            const container = document.getElementById('part2-topic-cards');
+            const matches = getFilteredPart2Topics();
+            const selectedTopics = part2Data.filter(entry => selectedPart2Categories.has(entry.categoryId));
+            const readCount = selectedTopics.filter(entry => readPart2Ids.has(entry.id)).length;
+            document.getElementById('part2-read-progress').textContent =
+                `${readCount} of ${selectedTopics.length} cue cards read`;
+
+            container.innerHTML = part2Categories
+                .map(category => ({ category, topics: matches.filter(entry => entry.categoryId === category.id) }))
+                .filter(group => group.topics.length > 0)
+                .map(group => `<section class="space-y-2">
+                    <h3 class="sticky top-0 z-10 bg-white py-1 text-xs font-bold uppercase tracking-wider text-slate-500">${escapeHtml(group.category.name)} <span class="font-normal text-slate-400">(${group.topics.length})</span></h3>
+                    ${group.topics.map(renderPart2CueCard).join('')}
+                </section>`)
+                .join('');
+            document.getElementById('part2-topic-empty').classList.toggle('hidden', matches.length > 0);
+            lucide.createIcons();
+        }
+
+        function renderPart2CueCard(entry) {
+            const index = part2Data.indexOf(entry);
+            const isRead = readPart2Ids.has(entry.id);
+            return `<article class="rounded-xl border p-4 space-y-2 transition ${isRead ? 'bg-emerald-50/50 border-emerald-200' : 'bg-white border-slate-200/80 hover:border-indigo-200'}">
+                <div class="flex items-start justify-between gap-3">
+                    <h4 class="font-semibold text-sm text-slate-900">${renderInteractiveText(entry.part2.question)}</h4>
+                    ${renderPart2ReadToggle(entry.id, isRead)}
+                </div>
+                <ul class="list-disc pl-5 text-xs sm:text-sm text-slate-600 space-y-0.5">${entry.part2.bullet_points.map(point => `<li>${renderInteractiveText(point)}</li>`).join('')}</ul>
+                <div class="flex items-center justify-between gap-2 pt-1">
+                    <span class="text-xs text-slate-400">${entry.part3.length} Part 3 questions</span>
+                    <div class="flex items-center gap-1">
+                        <button type="button" onclick="openPart2Preview(${index})" class="p-1.5 text-indigo-600 hover:text-indigo-800 rounded-lg hover:bg-indigo-50" aria-label="Preview ${escapeHtml(entry.topic)}" title="Preview"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                        <button type="button" onclick="startPart2Practice(${index})" class="text-xs py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium flex items-center gap-1">Practice <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                </div>
+            </article>`;
+        }
+
+        function renderPart2ReadToggle(id, isRead) {
+            return `<button type="button" onclick="togglePart2Read(${id})" aria-pressed="${isRead}" title="${isRead ? 'Mark as unread' : 'Mark as read'}"
+                class="shrink-0 flex items-center gap-1 text-xs py-1 px-2 rounded-lg border font-medium transition ${isRead
+                    ? 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700'
+                    : 'bg-white border-slate-300 text-slate-500 hover:border-emerald-500 hover:text-emerald-600'}">
+                <i data-lucide="${isRead ? 'check-circle-2' : 'circle'}" class="w-3.5 h-3.5"></i>${isRead ? 'Read' : 'Mark read'}
+            </button>`;
+        }
+
+        function togglePart2Read(id) {
+            if (readPart2Ids.has(id)) readPart2Ids.delete(id);
+            else readPart2Ids.add(id);
+            saveStoredJson(PART2_READ_STORAGE_KEY, [...readPart2Ids]);
+            renderPart2TopicCards();
+        }
+
+        function toggleCurrentPart2Read() {
+            const selection = speakingNavigation[speakingTopicIndex];
+            if (selection?.type !== 'part2') return;
+            togglePart2Read(selection.data.id);
+            renderSpeakingPractice();
+        }
+
+        function filterSpeakingTopics() {
+            const selected = [...document.querySelectorAll('.speaking-part1-checkbox:checked')].map(input => input.value);
+            renderSpeakingTopicCheckboxes();
+            selected.forEach(value => {
+                const checkbox = document.querySelector(`.speaking-part1-checkbox[value="${value}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+
+        function selectAllSpeakingTopics(shouldSelect) {
+            document.querySelectorAll('.speaking-part1-checkbox').forEach(input => input.checked = shouldSelect);
+        }
+
+        function chooseRandomPart2() {
+            const candidates = getFilteredPart2Topics().filter(entry => !readPart2Ids.has(entry.id));
+            if (!candidates.length) {
+                alert('There are no unread cue cards in the selected topics.');
+                return;
+            }
+            startPart2Practice(part2Data.indexOf(candidates[Math.floor(Math.random() * candidates.length)]));
+        }
+
+        function startPart2Practice(index) {
+            const filtered = getFilteredPart2Topics();
+            speakingNavigation = (filtered.includes(part2Data[index]) ? filtered : part2Data)
+                .map(data => ({ type: 'part2', data }));
+            speakingTopicIndex = speakingNavigation.findIndex(selection => selection.data === part2Data[index]);
+            speakingSelection = [speakingNavigation[speakingTopicIndex]];
+            showSpeakingPractice();
+        }
+
+        function selectSpeakingMode(mode) {
+            speakingMode = mode;
+            document.getElementById('part1-topic-picker').classList.toggle('hidden', mode !== 'part1');
+            document.getElementById('part2-topic-picker').classList.toggle('hidden', mode !== 'part2');
+            ['part1', 'part2', 'random'].forEach(name => {
+                const button = document.getElementById(`speaking-${name}-btn`);
+                button.className = name === mode
+                    ? 'py-2 px-2 text-xs font-semibold rounded-lg bg-white text-indigo-600 shadow-xs'
+                    : 'py-2 px-2 text-xs font-semibold rounded-lg text-slate-600';
+            });
+        }
+
+        /**
+         * Switch Tab between Topics and Custom Input
+         */
+        function switchTab(tab) {
+            activeTab = tab;
+            const topicsTab = document.getElementById('tab-topics');
+            const customTab = document.getElementById('tab-custom');
+            const topicsBtn = document.getElementById('tab-topics-btn');
+            const customBtn = document.getElementById('tab-custom-btn');
+
+            if (tab === 'topics') {
+                topicsTab.classList.remove('hidden');
+                customTab.classList.add('hidden');
+                topicsBtn.className = "flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 bg-white text-indigo-600 shadow-xs";
+                customBtn.className = "flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900";
+            } else {
+                topicsTab.classList.add('hidden');
+                customTab.classList.remove('hidden');
+                customBtn.className = "flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 bg-white text-indigo-600 shadow-xs";
+                topicsBtn.className = "flex-1 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900";
+            }
+        }
+
+        /**
+         * Render topic checkboxes dynamically with Expand/Collapse constraint
+         */
+        function renderTopicCheckboxes() {
+            const container = document.getElementById('topic-checkboxes');
+            const toggleBtn = document.getElementById('toggle-topics-btn');
+            const toggleText = document.getElementById('toggle-topics-text');
+            const toggleIcon = document.getElementById('toggle-topics-icon');
+
+            container.innerHTML = '';
+            const topicKeys = Object.keys(TOPICS_DATA);
+            const hiddenCount = topicKeys.length - INITIAL_VISIBLE_TOPICS;
+
+            topicKeys.forEach((topic, index) => {
+                const count = TOPICS_DATA[topic].length;
+                const label = document.createElement('label');
+
+                const isHidden = !showAllTopics && index >= INITIAL_VISIBLE_TOPICS;
+                label.className = `flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200/80 hover:bg-slate-50 cursor-pointer transition select-none text-xs sm:text-sm font-medium text-slate-700 ${isHidden ? 'hidden' : ''}`;
+                label.setAttribute('data-topic-index', index);
+
+                label.innerHTML = `
+                    <input 
+                        type="checkbox" 
+                        name="topic-select" 
+                        value="${escapeHtml(topic)}" 
+                        ${index === 0 ? 'checked' : ''}
+                        class="topic-checkbox w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                    />
+                    <span class="flex-1">${escapeHtml(topic)}</span>
+                    <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full font-normal">${count}</span>
+                    <button
+                        type="button"
+                        onclick="event.preventDefault(); event.stopPropagation(); previewTopicWords('${escapeJsString(topic)}')"
+                        aria-label="Preview words in ${escapeHtml(topic)}"
+                        title="Preview words"
+                        class="rounded-lg p-1.5 text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        <i data-lucide="eye" class="h-4 w-4"></i>
+                    </button>
+                `;
+
+                container.appendChild(label);
+            });
+
+            if (topicKeys.length <= INITIAL_VISIBLE_TOPICS) {
+                toggleBtn.classList.add('hidden');
+            } else {
+                toggleBtn.classList.remove('hidden');
+                if (showAllTopics) {
+                    toggleText.textContent = `- Show Fewer Topics`;
+                    toggleIcon.setAttribute('data-lucide', 'chevron-up');
+                } else {
+                    toggleText.textContent = `+ Show More Topics (${hiddenCount})`;
+                    toggleIcon.setAttribute('data-lucide', 'chevron-down');
+                }
+                lucide.createIcons();
+            }
+        }
+
+        function previewTopicWords(topic) {
+            const words = TOPICS_DATA[topic];
+            if (!words) return;
+
+            document.getElementById('topic-preview-title').textContent = topic;
+            document.getElementById('topic-preview-words').innerHTML = words
+                .map(word => `<li class="rounded-lg bg-slate-50 px-3 py-2">${escapeHtml(word)}</li>`)
+                .join('');
+
+            const dialog = document.getElementById('topic-preview-dialog');
+            if (!dialog.open) dialog.showModal();
+            lucide.createIcons();
+        }
+
+        function closeTopicPreview() {
+            document.getElementById('topic-preview-dialog').close();
+        }
+
+        /**
+         * Toggle showing topics past the 7th item
+         */
+        function toggleMoreTopics() {
+            showAllTopics = !showAllTopics;
+            renderTopicCheckboxes();
+        }
+
+        function getStoredJson(key, fallback) {
+            const stored = localStorage.getItem(key);
+            if (!stored) return fallback;
+            try {
+                return JSON.parse(stored);
+            } catch (error) {
+                console.warn(`Unable to read saved spelling data for ${key}.`, error);
+                return fallback;
+            }
+        }
+
+        function saveStoredJson(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+
+        function updateWeakWordsButton() {
+            const weakWords = getStoredJson(WEAK_WORDS_STORAGE_KEY, {});
+            const count = Object.values(weakWords).filter(value => value > 0).length;
+            const button = document.getElementById('review-weak-btn');
+            if (!button) return;
+            button.disabled = count === 0;
+            button.classList.toggle('opacity-50', count === 0);
+            button.classList.toggle('cursor-not-allowed', count === 0);
+            button.innerHTML = `<i data-lucide="book-marked" class="w-4 h-4"></i> Review Weak Words${count ? ` (${count})` : ''}`;
+            lucide.createIcons();
+        }
+
+        function showSpellingHistory() {
+            const history = getStoredJson(HISTORY_STORAGE_KEY, []);
+            const list = document.getElementById('history-list');
+            if (history.length === 0) {
+                list.innerHTML = '<p class="py-8 text-center text-sm text-slate-500">No completed practice sessions yet.</p>';
+            } else {
+                list.innerHTML = [...history].reverse().map(session => `
+                    <div class="flex items-center justify-between gap-4 border-b border-slate-100 py-3 last:border-0">
+                        <div>
+                            <p class="text-sm font-semibold text-slate-800">${escapeHtml(session.date)}</p>
+                            <p class="mt-1 text-xs text-slate-500">${session.total} ${session.total === 1 ? 'word' : 'words'}${session.caseSensitive ? ' · Case-sensitive' : ''}</p>
+                        </div>
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold ${session.score === session.total ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}">${session.score}/${session.total}</span>
+                    </div>
+                `).join('');
+            }
+            const dialog = document.getElementById('history-dialog');
+            if (!dialog.open) dialog.showModal();
+            lucide.createIcons();
+        }
+
+        function closeHistory() {
+            document.getElementById('history-dialog').close();
+        }
+
+        function clearSpellingHistory() {
+            localStorage.removeItem(HISTORY_STORAGE_KEY);
+            showSpellingHistory();
+        }
+
+        function startWeakWordsReview() {
+            const weakWords = getStoredJson(WEAK_WORDS_STORAGE_KEY, {});
+            const words = Object.entries(weakWords)
+                .filter(([, count]) => count > 0)
+                .map(([word]) => word);
+            if (words.length === 0) return;
+
+            targetWords = document.getElementById('shuffle-words').checked ? shuffleArray(words) : words;
+            caseSensitive = document.getElementById('case-sensitive').checked;
+            sessionRecorded = false;
+            document.getElementById('setup-section').classList.add('hidden');
+            document.getElementById('practice-section').classList.remove('hidden');
+            document.getElementById('results-card').classList.add('hidden');
+            renderPracticeFields();
+        }
+
+        function selectAllTopics(shouldSelect) {
+            const checkboxes = document.querySelectorAll('.topic-checkbox');
+            checkboxes.forEach(cb => cb.checked = shouldSelect);
+        }
+
+        /**
+         * Load and rank system/browser voices, prioritizing natural & high quality ones
+         */
+        function populateVoiceList() {
+            if (!synth) return;
+
+            const rawVoices = synth.getVoices();
+            if (!rawVoices || rawVoices.length === 0) return;
+
+            let englishVoices = rawVoices.filter(v => v.lang.startsWith('en'));
+            if (englishVoices.length === 0) englishVoices = rawVoices;
+
+            const premiumKeywords = ['google', 'natural', 'online', 'siri', 'premium', 'neural', 'samantha', 'karen', 'daniel', 'alex', 'enhanced'];
+
+            availableVoices = englishVoices.sort((a, b) => {
+                const nameA = a.name.toLowerCase();
+                const nameB = b.name.toLowerCase();
+
+                const scoreA = premiumKeywords.reduce((acc, kw) => nameA.includes(kw) ? acc + 2 : acc, 0) + (a.default ? 1 : 0);
+                const scoreB = premiumKeywords.reduce((acc, kw) => nameB.includes(kw) ? acc + 2 : acc, 0) + (b.default ? 1 : 0);
+
+                return scoreB - scoreA;
+            });
+
+            const voiceSelect = document.getElementById('voice-select');
+            if (!voiceSelect) return;
+
+            voiceSelect.innerHTML = '';
+
+            availableVoices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                const isNatural = premiumKeywords.some(kw => voice.name.toLowerCase().includes(kw));
+                option.textContent = `${voice.name} (${voice.lang})${isNatural ? ' ✨ High Quality' : ''}`;
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        function testVoice() {
+            speakWord('Spelling practice initialized successfully');
+        }
+
+        /**
+         * Pronounce word using Web Speech API or Fallback Audio
+         */
+        function speakWord(word) {
+            if (!word) return;
+
+            const audioEngine = document.getElementById('audio-engine')?.value || 'speech-synth';
+
+            if (audioEngine === 'online-audio') {
+                playOnlineAudio(word);
+            } else {
+                playSpeechSynth(word);
+            }
+        }
+
+        function playSpeechSynth(word) {
+            if (!synth) {
+                playOnlineAudio(word);
+                return;
+            }
+
+            synth.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(word);
+
+            const voiceSelect = document.getElementById('voice-select');
+            if (voiceSelect && availableVoices.length > 0) {
+                const selectedIndex = parseInt(voiceSelect.value, 10);
+                if (!isNaN(selectedIndex) && availableVoices[selectedIndex]) {
+                    utterance.voice = availableVoices[selectedIndex];
+                }
+            }
+
+            const speedSelect = document.getElementById('voice-speed');
+            utterance.rate = parseFloat(speedSelect?.value) || 0.9;
+            utterance.pitch = 1.0;
+
+            synth.speak(utterance);
+        }
+
+        function playOnlineAudio(word) {
+            if (synth) synth.cancel();
+
+            const cleanWord = word.trim().toLowerCase().replace(/[^a-z]/g, '');
+            if (!cleanWord) return;
+
+            const audioUrl = `https://api.dictionaryapi.dev/media/pronunciations/en/${cleanWord}-us.mp3`;
+            const audio = new Audio(audioUrl);
+
+            audio.play().catch(() => {
+                playSpeechSynth(word);
+            });
+        }
+
+        /**
+         * Parse custom textarea
+         */
+        function parseWords(text) {
+            return text
+                .split(/[\n,]+/)
+                .map(w => w.trim())
+                .filter(w => w.length > 0);
+        }
+
+        /**
+         * Utility to shuffle array
+         */
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startSpeakingPractice() {
+            if (part1Data.length === 0 || part2Data.length === 0) {
+                alert('Speaking samples are still loading. Please try again in a moment.');
+                return;
+            }
+
+            if (speakingMode === 'part1') {
+                const selected = [...document.querySelectorAll('.speaking-part1-checkbox:checked')];
+                if (selected.length === 0) {
+                    alert('Please select at least one Part 1 topic.');
+                    return;
+                }
+                speakingSelection = selected.map(option => ({ type: 'part1', data: part1Data[Number(option.value)] }));
+                speakingNavigation = selected.length > 1
+                    ? speakingSelection
+                    : part1Data.map(data => ({ type: 'part1', data }));
+            } else if (speakingMode === 'random') {
+                const unread = part2Data.filter(entry => !readPart2Ids.has(entry.id));
+                const pool = unread.length ? unread : part2Data;
+                startPart2Practice(part2Data.indexOf(pool[Math.floor(Math.random() * pool.length)]));
+                return;
+            } else {
+                const filtered = getFilteredPart2Topics();
+                if (filtered.length === 0) {
+                    alert('Please select at least one Part 2 topic with cue cards.');
+                    return;
+                }
+                const firstUnread = filtered.find(entry => !readPart2Ids.has(entry.id)) || filtered[0];
+                startPart2Practice(part2Data.indexOf(firstUnread));
+                return;
+            }
+            speakingTopicIndex = speakingNavigation.findIndex(selection => selection.data === speakingSelection[0].data);
+            showSpeakingPractice();
+        }
+
+        function showSpeakingPractice() {
+            document.getElementById('speaking-setup-section').classList.add('hidden');
+            document.getElementById('speaking-practice-section').classList.remove('hidden');
+            renderSpeakingPractice();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openPart1Preview(index) {
+            const entry = part1Data[index];
+            if (!entry) return;
+            openSpeakingPreview('Part 1 topic', entry.topic, entry.questions.map(question =>
+                `<div class="border-b border-slate-100 pb-3 last:border-0"><p class="font-semibold text-slate-800">${renderInteractiveText(question.question)}</p><p class="text-sm text-slate-600 mt-1">${renderInteractiveText(question.sample_answers?.[0] || 'No sample answer available.')}</p></div>`
+            ).join(''));
+        }
+
+        function openPart2Preview(index) {
+            const entry = part2Data[index];
+            if (!entry) return;
+            openSpeakingPreview('Part 2 + Part 3 topic', entry.topic, `
+                <div class="bg-indigo-50 rounded-xl p-4"><p class="font-semibold text-slate-800">${renderInteractiveText(entry.part2.question)}</p><ul class="list-disc pl-5 mt-2 text-sm text-slate-700">${entry.part2.bullet_points.map(point => `<li>${renderInteractiveText(point)}</li>`).join('')}</ul></div>
+                <h3 class="font-semibold text-slate-800 pt-2">Part 3 questions (${entry.part3.length})</h3>
+                ${entry.part3.map(question => `<p class="text-sm text-slate-600 border-b border-slate-100 pb-2">${renderInteractiveText(question.question)}</p>`).join('')}
+            `);
+        }
+
+        function openSpeakingPreview(label, title, content) {
+            document.getElementById('speaking-preview-label').textContent = label;
+            document.getElementById('speaking-preview-title').textContent = title;
+            document.getElementById('speaking-preview-content').innerHTML = content;
+            document.getElementById('speaking-preview-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeSpeakingPreview(event) {
+            if (!event || event.target === document.getElementById('speaking-preview-modal') || event.currentTarget.tagName === 'BUTTON') {
+                document.getElementById('speaking-preview-modal').classList.add('hidden');
+            }
+        }
+
+        function renderSpeakingPractice() {
+            const container = document.getElementById('speaking-fields-container');
+            const selection = speakingNavigation[speakingTopicIndex];
+            if (!selection) return;
+            const data = selection.data;
+            const questionCount = selection.type === 'part1'
+                ? data.questions.length
+                : 1 + data.part3.length;
+            document.getElementById('speaking-count-badge').textContent =
+                `${questionCount} ${questionCount === 1 ? 'Question' : 'Questions'}`;
+            const previousTopic = speakingNavigation[speakingTopicIndex - 1];
+            const nextTopic = speakingNavigation[speakingTopicIndex + 1];
+            document.getElementById('speaking-prev-topic-title').textContent =
+                previousTopic ? previousTopic.data.topic : 'No previous topic';
+            document.getElementById('speaking-next-topic-title').textContent =
+                nextTopic ? nextTopic.data.topic : 'No next topic';
+            document.getElementById('speaking-prev-btn').disabled = speakingTopicIndex === 0;
+            document.getElementById('speaking-next-btn').disabled = speakingTopicIndex === speakingNavigation.length - 1;
+            document.getElementById('speaking-prev-btn').classList.toggle('opacity-50', speakingTopicIndex === 0);
+            document.getElementById('speaking-next-btn').classList.toggle('opacity-50', speakingTopicIndex === speakingNavigation.length - 1);
+
+            const readButton = document.getElementById('speaking-read-btn');
+            readButton.classList.toggle('hidden', selection.type !== 'part2');
+            readButton.classList.toggle('flex', selection.type === 'part2');
+            if (selection.type === 'part2') {
+                const isRead = readPart2Ids.has(data.id);
+                readButton.className = `text-xs py-1.5 px-3 rounded-lg border font-medium transition flex items-center gap-1 ${isRead
+                    ? 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700'
+                    : 'bg-white border-slate-300 text-slate-600 hover:border-emerald-500 hover:text-emerald-600'}`;
+                readButton.innerHTML = `<i data-lucide="${isRead ? 'check-circle-2' : 'circle'}" class="w-3.5 h-3.5"></i>${isRead ? 'Read' : 'Mark as read'}`;
+            }
+
+            if (selection.type === 'part1') {
+                container.innerHTML = `<section class="space-y-3">
+                    <h2 class="text-lg font-bold text-slate-900">${escapeHtml(data.topic)} <span class="text-xs font-medium text-indigo-600">Part 1</span></h2>
+                    ${data.questions.map(question => renderSpeakingCard(question.question, question.sample_answers || [], 'Question')).join('')}
+                </section>`;
+            } else {
+                container.innerHTML = `<section class="space-y-3">
+                    <h2 class="text-lg font-bold text-slate-900">${escapeHtml(data.topic)}</h2>
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 space-y-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Part 2 cue card</span>
+                        <h3 class="font-semibold text-slate-900">${renderInteractiveText(data.part2.question)}</h3>
+                        <ul class="list-disc pl-5 text-sm text-slate-700">${data.part2.bullet_points.map(point => `<li>${renderInteractiveText(point)}</li>`).join('')}</ul>
+                        ${data.samples?.[0]?.points ? renderSpeakingAnswer(data.samples[0].points.join(' ')) : ''}
+                    </div>
+                    <h3 class="font-semibold text-slate-800 pt-2">Part 3 follow-up questions</h3>
+                    ${data.part3.map(question => renderSpeakingCard(question.question, [question.sample_answer], 'Part 3')).join('')}
+                </section>`;
+            }
+            lucide.createIcons();
+        }
+
+        function moveSpeakingTopic(direction) {
+            const nextIndex = speakingTopicIndex + direction;
+            if (nextIndex < 0 || nextIndex >= speakingNavigation.length) return;
+            speakingTopicIndex = nextIndex;
+            renderSpeakingPractice();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderSpeakingCard(question, answers, label) {
+            const answer = answers.filter(Boolean).join('\n\n');
+            return `<article class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">${label}</span>
+                <h3 class="font-semibold text-slate-900">${renderInteractiveText(question)}</h3>
+                <div class="flex gap-2">
+                    <button onclick="toggleSampleAnswer(this)" class="text-xs py-2 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">Show sample answer</button>
+                </div>
+                <p data-sample-answer class="hidden whitespace-pre-line text-sm leading-relaxed text-slate-600 border-t border-slate-100 pt-3">${renderInteractiveText(answer || 'No sample answer is available for this question.')}</p>
+            </article>`;
+        }
+
+        function toggleSampleAnswer(button) {
+            const answer = button.closest('article').querySelector('[data-sample-answer]');
+            const isHidden = answer.classList.toggle('hidden');
+            button.textContent = isHidden ? 'Show sample answer' : 'Hide sample answer';
+        }
+
+        function renderSpeakingAnswer(answer) {
+            return `<details class="text-sm text-slate-700"><summary class="cursor-pointer text-xs font-semibold text-indigo-700">Show sample answer</summary><p class="mt-2 leading-relaxed">${renderInteractiveText(answer)}</p></details>`;
+        }
+
+        function renderInteractiveText(text) {
+            return escapeHtml(text);
+        }
+
+        let speakingSelectedRange = null;
+
+        function isSpeakingSelection(selection) {
+            if (!selection || selection.isCollapsed || !selection.rangeCount) return false;
+            const range = selection.getRangeAt(0);
+            return Boolean(range.commonAncestorContainer.parentElement?.closest('#speaking-practice-section, #speaking-preview-modal'));
+        }
+
+        function handleSpeakingSelection() {
+            const selection = window.getSelection();
+            if (!isSpeakingSelection(selection)) {
+                hideSpeakingSelectionToolbar();
+                return;
+            }
+            speakingSelectedRange = selection.getRangeAt(0).cloneRange();
+            positionSpeakingSelectionToolbar();
+        }
+
+        function positionSpeakingSelectionToolbar() {
+            if (!speakingSelectedRange || speakingSelectedRange.collapsed) return;
+            const selection = window.getSelection();
+            if (!isSpeakingSelection(selection)) return;
+            const toolbar = document.getElementById('speaking-selection-toolbar');
+            const rect = speakingSelectedRange.getBoundingClientRect();
+            toolbar.classList.remove('hidden');
+            toolbar.classList.add('flex');
+            const left = Math.max(8, Math.min(window.innerWidth - toolbar.offsetWidth - 8, rect.left + (rect.width - toolbar.offsetWidth) / 2));
+            toolbar.style.left = `${left}px`;
+            toolbar.style.top = `${Math.max(8, rect.top - toolbar.offsetHeight - 8)}px`;
+        }
+
+        function hideSpeakingSelectionToolbar() {
+            const toolbar = document.getElementById('speaking-selection-toolbar');
+            toolbar.classList.add('hidden');
+            toolbar.classList.remove('flex');
+        }
+
+        function pronounceSpeakingSelection() {
+            if (!speakingSelectedRange) return;
+            const text = speakingSelectedRange.toString().trim();
+            if (text) speakWord(text);
+            hideSpeakingSelectionToolbar();
+        }
+
+        function highlightSpeakingSelection() {
+            if (!speakingSelectedRange) return;
+            const range = speakingSelectedRange.cloneRange();
+            if (window.CSS && CSS.highlights) {
+                const highlight = CSS.highlights.get('speaking-highlight') || new Highlight();
+                highlight.add(range);
+                CSS.highlights.set('speaking-highlight', highlight);
+            } else if (range.startContainer === range.endContainer && range.startContainer.nodeType === Node.TEXT_NODE) {
+                const mark = document.createElement('span');
+                mark.className = 'speaking-highlight-fallback';
+                range.surroundContents(mark);
+            }
+            window.getSelection()?.removeAllRanges();
+            speakingSelectedRange = null;
+            hideSpeakingSelectionToolbar();
+        }
+
+        function resetSpeakingPractice() {
+            document.getElementById('speaking-practice-section').classList.add('hidden');
+            document.getElementById('speaking-setup-section').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /**
+         * Transition from setup view to practice view
+         */
+        function startPractice() {
+            let words = [];
+
+            if (activeTab === 'topics') {
+                const checkedBoxes = document.querySelectorAll('.topic-checkbox:checked');
+                checkedBoxes.forEach(cb => {
+                    const topicName = cb.value;
+                    if (TOPICS_DATA[topicName]) {
+                        words = words.concat(TOPICS_DATA[topicName]);
+                    }
+                });
+            } else {
+                const rawText = document.getElementById('word-input').value;
+                words = parseWords(rawText);
+            }
+
+            if (words.length === 0) {
+                alert(activeTab === 'topics' ? 'Please select at least one topic.' : 'Please enter at least one word.');
+                return;
+            }
+
+            // Check if shuffle is enabled
+            const shouldShuffle = document.getElementById('shuffle-words').checked;
+            targetWords = shouldShuffle ? shuffleArray(words) : words;
+            caseSensitive = document.getElementById('case-sensitive').checked;
+            sessionRecorded = false;
+
+            // Hide setup, show practice
+            document.getElementById('setup-section').classList.add('hidden');
+            document.getElementById('practice-section').classList.remove('hidden');
+            document.getElementById('results-card').classList.add('hidden');
+
+            renderPracticeFields();
+        }
+
+        /**
+         * Render practice inputs dynamically
+         * Speaker button contains tabindex="-1" so TAB moves directly between input fields
+         */
+        function renderPracticeFields() {
+            const container = document.getElementById('fields-container');
+            const countBadge = document.getElementById('word-count-badge');
+
+            container.innerHTML = '';
+            countBadge.textContent = `${targetWords.length} ${targetWords.length === 1 ? 'Word' : 'Words'}`;
+
+            targetWords.forEach((word, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs space-y-2 transition";
+                card.id = `card-${index}`;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-semibold text-slate-400 w-6 text-right">${index + 1}.</span>
+                        
+                        <div class="relative flex-1">
+                            <input 
+                                type="text" 
+                                id="input-${index}"
+                                autocomplete="off"
+                                autocorrect="off"
+                                autocapitalize="off"
+                                spellcheck="false"
+                                enterkeyhint="next"
+                                placeholder="Listen and type spelling..."
+                                onfocus="speakWord('${escapeJsString(word)}')"
+                                onkeydown="handlePracticeInputKeydown(event, ${index})"
+                                class="w-full py-2.5 pl-3 pr-10 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 text-base transition"
+                            />
+                        </div>
+
+                        <button 
+                            type="button" 
+                            tabindex="-1"
+                            onclick="speakWord('${escapeJsString(word)}')" 
+                            title="Listen Again"
+                            class="p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg border border-slate-200 transition flex items-center justify-center shrink-0 focus:outline-none"
+                        >
+                            <i data-lucide="volume-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div id="feedback-${index}" class="hidden text-xs pl-9 pt-1 font-medium"></div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        function handlePracticeInputKeydown(event, index) {
+            if (event.key !== 'Enter') return;
+
+            event.preventDefault();
+            const nextInput = document.getElementById(`input-${index + 1}`);
+            if (nextInput) {
+                nextInput.focus();
+            } else {
+                document.getElementById('check-btn').focus();
+            }
+        }
+
+        /**
+         * Evaluate entered spellings against target list
+         */
+        function checkAnswers() {
+            let correctCount = 0;
+            wrongWords = [];
+
+            targetWords.forEach((target, index) => {
+                const inputEl = document.getElementById(`input-${index}`);
+                const feedbackEl = document.getElementById(`feedback-${index}`);
+                const cardEl = document.getElementById(`card-${index}`);
+
+                const userVal = inputEl.value.trim();
+                const isCorrect = caseSensitive ? userVal === target : userVal.toLowerCase() === target.toLowerCase();
+
+                feedbackEl.classList.remove('hidden');
+
+                if (isCorrect) {
+                    correctCount++;
+                    cardEl.className = "bg-emerald-50/50 p-4 rounded-xl border border-emerald-200 shadow-xs space-y-2 transition";
+                    inputEl.className = "w-full py-2.5 pl-3 pr-10 border border-emerald-400 bg-white rounded-lg text-emerald-900 font-medium text-base outline-none";
+                    feedbackEl.className = "text-xs pl-9 pt-1 font-semibold text-emerald-600 flex items-center gap-1";
+                    feedbackEl.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Correct!`;
+                } else {
+                    wrongWords.push(target);
+                    cardEl.className = "bg-rose-50/50 p-4 rounded-xl border border-rose-200 shadow-xs space-y-2 transition";
+                    inputEl.className = "w-full py-2.5 pl-3 pr-10 border border-rose-400 bg-white rounded-lg text-rose-900 font-medium text-base outline-none";
+                    feedbackEl.className = "text-xs pl-9 pt-1 font-semibold text-rose-600 flex items-center gap-1";
+                    feedbackEl.innerHTML = `<i data-lucide="x" class="w-4 h-4"></i> Incorrect. Correct spelling: <span class="underline font-bold">${escapeHtml(target)}</span>`;
+                }
+            });
+
+            recordPracticeResult(correctCount);
+            lucide.createIcons();
+            showResultsSummary(correctCount, targetWords.length);
+        }
+
+        function recordPracticeResult(score) {
+            if (sessionRecorded) return;
+            sessionRecorded = true;
+
+            const history = getStoredJson(HISTORY_STORAGE_KEY, []);
+            history.push({
+                date: new Date().toLocaleString(),
+                score,
+                total: targetWords.length,
+                caseSensitive
+            });
+            saveStoredJson(HISTORY_STORAGE_KEY, history.slice(-20));
+
+            const weakWords = getStoredJson(WEAK_WORDS_STORAGE_KEY, {});
+            targetWords.forEach((target, index) => {
+                const input = document.getElementById(`input-${index}`).value.trim();
+                const correct = caseSensitive ? input === target : input.toLowerCase() === target.toLowerCase();
+                const key = target.toLowerCase();
+                if (correct) {
+                    weakWords[key] = Math.max(0, (weakWords[key] || 0) - 1);
+                } else {
+                    weakWords[key] = (weakWords[key] || 0) + 1;
+                }
+            });
+            saveStoredJson(WEAK_WORDS_STORAGE_KEY, weakWords);
+            updateWeakWordsButton();
+        }
+
+        /**
+         * Render final score summary card
+         */
+        function showResultsSummary(score, total) {
+            const resultsCard = document.getElementById('results-card');
+            const scoreIcon = document.getElementById('score-icon');
+            const scoreTitle = document.getElementById('score-title');
+            const scoreText = document.getElementById('score-text');
+            const retryMistakesBtn = document.getElementById('retry-mistakes-btn');
+
+            const percentage = Math.round((score / total) * 100);
+
+            if (percentage === 100) {
+                scoreIcon.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center bg-emerald-100 text-emerald-600";
+                scoreIcon.innerHTML = `<i data-lucide="award" class="w-8 h-8"></i>`;
+                scoreTitle.textContent = "Perfect Score!";
+                retryMistakesBtn.classList.add('hidden');
+            } else if (percentage >= 70) {
+                scoreIcon.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center bg-indigo-100 text-indigo-600";
+                scoreIcon.innerHTML = `<i data-lucide="thumbs-up" class="w-8 h-8"></i>`;
+                scoreTitle.textContent = "Great Job!";
+                retryMistakesBtn.classList.remove('hidden');
+            } else {
+                scoreIcon.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center bg-amber-100 text-amber-600";
+                scoreIcon.innerHTML = `<i data-lucide="book-open" class="w-8 h-8"></i>`;
+                scoreTitle.textContent = "Keep Practicing!";
+                retryMistakesBtn.classList.remove('hidden');
+            }
+
+            scoreText.textContent = `You spelled ${score} out of ${total} words correctly (${percentage}%).`;
+            resultsCard.classList.remove('hidden');
+
+            lucide.createIcons();
+            resultsCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function retryMistakesOnly() {
+            if (wrongWords.length === 0) return;
+            targetWords = [...wrongWords];
+            document.getElementById('results-card').classList.add('hidden');
+            renderPracticeFields();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function retrySameWords() {
+            document.getElementById('results-card').classList.add('hidden');
+            renderPracticeFields();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetApp() {
+            document.getElementById('setup-section').classList.remove('hidden');
+            document.getElementById('speaking-setup-section').classList.add('hidden');
+            document.getElementById('practice-section').classList.add('hidden');
+            document.getElementById('speaking-practice-section').classList.add('hidden');
+            document.getElementById('results-card').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function escapeJsString(str) {
+            return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+
+</html>
